@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "categorias")
@@ -17,6 +19,11 @@ public class Categoria implements Serializable {
 	@Column(name = "titulo", nullable = false, unique = true)
 	private String titulo;
 	
+	// o @JsonIgnore vai evitar um loop de conversão de dados com o objetp json for transformar a classe Categoria 
+	// em um objeto JSON. No nosso projeto, a tabela de promoções nãp precisará da lista de promoções contida neste
+	// objeto Categoria;
+	// O Objeto de converção para json irá ignorá esta lista de promoções.
+	@JsonIgnore
 	@OneToMany(mappedBy = "categoria")
 	private List<Promocao> promocoes;
 

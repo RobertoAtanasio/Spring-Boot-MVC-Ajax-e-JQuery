@@ -17,77 +17,6 @@ POM's <dependencies> section:
   <version>1.12.1</version>
 </dependency>
 
-//=================================================================================================================================
-
-Seção 01 - Resumo
-
-
-Criando o Projeto
-Um projeto Spring Boot pode ser criado a partir da estrutura de projetos dos gerenciadores de build Maven e Gradle.  Durante 
-este curso, vamos utilizar o Maven.
-
-As principais IDEs Java facilitam bastante a criação de um projeto baseado no Maven, entretanto, algumas IDEs como Spring Tool 
-Suite  (STS) e IntelliJ IDEA possuem um plugin bastante interessante para se criar um projeto baseado no Spring Boot. Já o 
-Eclipse e o Netbeans não tem esse plugin disponível, na instalação padrão das IDEs.
-
-Por conta disso, vou demonstrar como criar um projeto Spring Boot via  Spring Initializr. O site oferece um formulário para 
-inserção de alguns dados do projeto, como gerenciador build e dependências, versão do Java, nome do projeto, versão do Spring 
-Boot e claro, dos starters do Spring Boot e até algumas dependências como driver de conexão de vários banco de dados.
-
-Spring Spring InitializrSpring Initializr
-Após ter configurado o projeto com as opções desejadas, basta clicar no botão Generate Project e um arquivo .zip, com o nome 
-dado ao projeto, será criado e automaticamente baixado para sua máquina. Ao final do download, descompacte arquivo ao final 
-no seu diretório projetos (workspace) e use sua IDE de preferencia para importá-lo com um projeto Maven.
-
-Após importar o projeto, abra o arquivo pom.xml e inclua junta as demais dependências já existentes a dependência de layout 
-de páginas para o thymeleaf:
-
-<dependency>
-	<groupId>nz.net.ultraq.thymeleaf</groupId>
-	<artifactId>thymeleaf-layout-dialect</artifactId>
-</dependency>
-Essa dependência será essencial para o projeto, sendo assim, não esqueça de incluí-la em seu pom.xml.
-
-
-
-O arquivo de propriedades
-Neste projeto vamos trabalhar com JPA para persistência de dados e com o banco de dados MySQL.  Caso você ainda não tenha 
-instalado o MySQL em sua máquina, aconselho a realizar o download de uma dessas versões: 5.5, 5.6 ou 5.7. Isso porque, a 
-última versão (MySQL 8) foi lançada com um sistema diferente de gerenciamento de senhas que vem complicando bastante a 
-conexão das aplicações com o SGDB. E se você não quer perder tempo tentando resolver esta questão, use uma das versões sugeridas.
-
-Para configurar o acesso ao banco de dados no Spring Boot, usamos o arquivo ../resources/application.properties . Neste 
-arquivo vamos incluir as seguintes propriedades:
-
-# MYSQL
-spring.datasource.url= jdbc:mysql://localhost:3306/ajaxdb?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
-spring.datasource.username= root
-spring.datasource.password= root
- 
-#JPA
-spring.jpa.hibernate.ddl-auto= update
-spring.jpa.show-sql= true
-spring.jpa.open-in-view= true
-A url de conexão tem um parâmetro para na inicialização da aplicação o banco de dados seja criado automaticamente caso 
-ainda não exista. Já os parâmetros useSSL e serverTimezone são instruções que algumas versões do MySQL exigem para a conexão. 
-A useSSL indica se será uma conexão segura, do tipo HTTPS. E a serverTimezone é para indicar ao SGDB o timezone a ser usado 
-nas operações.
-
-Caso você tenha uma senha ou nome de usuário diferente de root em sua instalação do MySQL, não esqueça de alterar estes 
-valores no arquivo de propriedade.
-
-Para JPA vamos incluir a instrução do Hibernate que cria as tabelas e colunas no bando de dados a partir do mapeamento 
-realizado nas classes de entidades. Vamos também, habilitar a visualização das instruções SQL no log da aplicação.
-
-Por fim, a instrução finalizada com spring.jpa.open-in-view tem como objetivo habilitar o uso do filtro OpenInView do 
-Spring. Este filtro habilitado evita exceções do tipo Lazy entre relacionamentos 1:N e N:N.
-
-A última propriedade que vamos configurar é o cache do Thymeleaf no lado cliente.
-
-# THYMELEAF
-spring.thymeleaf.cache= false
-Por padrão o Spring Boot trás essa propriedade habilitada (true), o que não é bom para o modo de desenvolvimento, por 
-isso, vamos desabilita-la (false).
 
 //=================================================================================================================================
 
@@ -122,22 +51,6 @@ Observe que diferente do TwitterCard o atributo identificador é property e não
 do atributo que será og: seguido do tipo de instrução que a meta tag vai armazenar. Para saber mais, acesse a documentação do 
 OpenGraph.
 
-Levando em consideração o objetivo desse curso, selecionei alguns sites de venda que possuem as meta tags do TwiiterCard ou do 
-OpenGraph, assim, será mais pratico cadastrar os produtos durante o desenvolvimento.
-
-Udemy
-Pichau Informática
-TeraByte Shop
-Walmart
-Lojas Colombo
-Cissa Magazine
-Carrefour
-Mobly
-
-Algumas páginas de comércio eletrônico não possuem estas meta tags, desta forma, não vamos conseguir capturar as informações 
-desejadas para nossa aplicação. Você pode verificar analisando o código fonte das páginas.
-
-
 
 JSoup HTML Parser
 Para que possamos capturar as informações desejadas das meta tags vamos trabalhar com a biblioteca JSoup. Esta biblioteca é uma 
@@ -169,66 +82,32 @@ Vamos então, incluir a dependência do JSoup no arquivo pom.xml do projeto e as
     </dependency>
 
 
-A classe SocialMetaTag
-Os dados que vamos capturar das meta tags são o título, a url de acesso a página, a url da imagem destacada na página e o nome 
-do site. Sendo assim, vamos criar a classe SocialMetaTag com os atributos que vão representar os dados capturados:
-
-public class SocialMetaTag implements Serializable {    
-	private String site;
-	private String title;
-	private String url;
-	private String image;
-	//métodos get/set omitidos
-}
-
-
-A classe SocialMetaTagService
-A classe que vai ser usada para captura das informações desejadas é a SocialMetaTagService. Nela teremos os métodos 
-esponsáveis por este processo. Vamos agora examinar o método que captura as informações via TwitterCard:
-
-@Service
-public class SocialMetaTagService {
- 	
-	private SocialMetaTag getTwitterCardByUrl(String url) {
-		SocialMetaTag tag = new SocialMetaTag();
-		try {
-			Document doc = Jsoup.connect(url).get();
-			tag.setTitle(doc.head()
-                                .select("meta[name=twitter:title]").attr("content"));
-			tag.setSite(doc.head()
-                                .select("meta[name=twitter:site]").attr("content"));
-			tag.setImage(doc.head()
-                                .select("meta[name=twitter:image]").attr("content"));
-			tag.setUrl(doc.head()
-                                .select("meta[name=twitter:url]").attr("content"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return tag;
-	}
-}
-Este método recebe como parâmetro a URL da página que terá os dados capturados. Para selecionar quais dados o JSoup deve nos 
-retornar, vamos usar o método head() para ir diretamente ao conteúdo da tag <head> do HTML. É nessa tag que as meta tags são 
-adicionadas.
-
-Para selecionar o que queremos, vamos usar a instrução meta[name=twitter:site] no método select(). Essa instrução vai procurar 
-pela meta tag twitter:site.  E para recuperar o valor da propriedade content, a qual vai conter o nome do site, usamos o 
-método attr("content") informando como parâmetro o nome do atributo que queremos recuperar o valor.
-
-Depois de recuperar o valor, podemos adicioná-lo ao objeto SocialMetaTag.  O mesmo processo deve ser realizado para as outras 
-meta tags, assim como, para o OpenGraph, alterando apenas os dados específicos de cada meta tag.
 
 //===========================================================================================================================
 
 Seção 03 - Resumo
 
-jQuery Ajax
-Para trabalhar com requisições Ajax podemos usar JavaScript em sua essência, ou seja, sem uma biblioteca JS envolvida, ou 
-então, fazer uso de uma biblioteca JS como a jQuery.
-Assim como no Java, usar bibliotecas sempre facilita, já que não será necessário reinventar a roda.
-
-A jQuery talvez seja a biblioteca JS mais famosa e a mais utilizada no mercado de trabalho. Inclusive o Bootstrap usa a 
-jQuery em alguns de seus componentes. Sendo assim, vamos trabalhar com Ajax via jQuery durante o curso.
-
-Para informações adicionais sobre a jQuery eu sugiro dois sites, o site oficial da biblioteca 
+Para informações adicionais sobre a jQuery: 
 http://api.jquery.com/jquery.ajax/ e também o W3Schools que possui uma boa documentação e exemplos sobre a jQuery.
+
+//===========================================================================================================================
+
+O projeto acessa os dados do site: https://datatables.net/
+
+Inclcuído em lauoyt.html os seguintes arquivos CSS e JS:
+		CSS: //cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css
+			<link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
+			
+		JS:  //cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js
+			<script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+			
+No nosso projeto, vamos trabalhar com os dados do link: https://datatables.net/manual/server-side
+
+Para o estilo responsivo funcionar, acessar em https://datatables.net/extensions/responsive/
+os arquivos CSS e JS a partir do link 'individual files' e acessar o item 'Responsive' e baixar os arquivos.
+Incluído em layout.html:
+	
+	<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css"/>
+	
+	<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+
