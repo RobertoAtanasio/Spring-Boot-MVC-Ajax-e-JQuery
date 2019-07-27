@@ -111,3 +111,12 @@ Incluído em layout.html:
 	
 	<script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 
+
+//==========================================================================================================================
+
+Trabalhando com as datas:
+
+Via https://cdnjs.com/, pesquisar por moment e acessar link moment.js: https://cdnjs.com/libraries/moment.js
+
+Importar:	https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js
+	
