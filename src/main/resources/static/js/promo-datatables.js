@@ -62,12 +62,13 @@ $(document).ready(function(){
 	});
 	
 	// Ação para marcar/desmarcar botões ao clicar na ordenação
+	
 	$("#table-server thead").on('click', 'tr', function() {
 		table.buttons().disable();
 	});
 	
-	// Ação para marcar/desmarcar linhas clicadas.
-	// Indicamos que o click será em uma tag 'tr'
+	// Ação para marcar/desmarcar linhas clicadas. Indicamos que o click será em uma tag 'tr'
+	
 	$("#table-server tbody").on('click', 'tr', function() {
 		// Verifica se a linha já está selecionada, logo, vamos desmarcar.
 		// 'selected' é umam classe JQuery que marcará a linha como selecionada.
@@ -82,17 +83,80 @@ $(document).ready(function(){
 	});
 	
 	// Ação do botão de editar (abrir modal)
+	
 	$("#btn-editar").on('click', function() {
-		// Obter o 'id' da linha selecionada. Obs: 'id', 'titulo',etc é o nome da coluna desejada
-		// Obs: se a linha não estiver selecionada, a instrução abaixo dará erro.
-		let id = table.row(table.$('tr.selected')).data().id;
-		alert("Click no botão Editar de Id: " + id);
+		
+//		alert("Click no botão Editar de Id: " + id);
+		
+		if (isLinhaSelecionada()) {
+			
+			let id = getIdLinha();
+			// Obs.: a variável 'data' em function abaixo, tem os dados retornados 
+			$.ajax({
+				method: "GET",
+				url: "/promocao/edit/" + id,
+				beforeSend: function() {
+					// instrução 'modal' do bootstrap para abrir o mesmo
+					$('#modal-form').modal('show');
+				},
+				success: function( data ) {
+					console.log(">> ", data);
+					// Preeche os campos do modal de edição. O valor já deve ser enviado com a formatação.
+					$("#edt_id").val(data.id);
+					$("#edt_site").text(data.site);
+					$("#edt_titulo").val(data.titulo);
+					$("#edt_descricao").val(data.descricao);
+					$("#edt_preco").val(data.preco.toLocaleString('pt-BR', {
+						minimumFractionDigits: 2,
+						maximumFractionDigits: 2
+					}));
+					$("#edt_categoria").val(data.categoria.id);
+					$("#edt_linkImagem").val(data.linkImagem);
+					$("#edt_imagem").attr('src', data.linkImagem);
+				},
+				error: function() {
+					alert("Ops... algum erro ocorreu, tente novamente.");
+				}
+			});
+			
+		} 
 	});
 	
 	// Ação do botão de excluir (abrir modal)
 	$("#btn-excluir").on('click', function() {
-		alert("Click no botão Excluir.");
+		if (isLinhaSelecionada()) {
+			$('#modal-delete').modal('show');
+//			alert("Click no botão Excluir.");
+		}
 	});
+	
+	// exclusão de uma promoção via click no botão do modal de excluir
+	$("#btn-del-modal").on('click', function() {
+		let id = getIdLinha();
+		$.ajax({
+			method: "GET",
+			url: "/promocao/delete/" + id,
+			success: function() {
+				$('#modal-delete').modal('hide');	// fechar o modal
+				table.buttons().disable();			// desabilitar os botões
+				table.ajax.reload();				// atualiza a tabela
+			},
+			error: function() {
+				alert("Ops... Ocorreu um erro, tente mais tarde.");
+			}
+		});
+	});
+	
+	function getIdLinha() {
+		// Obter o 'id' da linha selecionada. Obs: 'id', 'titulo',etc é o nome da coluna desejada
+		// Obs: se a linha não estiver selecionada, a instrução abaixo dará erro.
+		return table.row(table.$('tr.selected')).data().id;
+	}
+	
+	function isLinhaSelecionada() {
+		let trow = table.row(table.$('tr.selected'));
+		return trow.data() !== undefined;
+	}
 	
 });
 

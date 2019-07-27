@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -20,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -53,6 +55,20 @@ public class PromocaoController {
 	public ResponseEntity<?> datatables(HttpServletRequest request) {
 		Map<String, Object> data = new PromocaoDataTableService().execute(promocaoRepository, request);
 		return ResponseEntity.ok(data);
+	}
+	
+	@GetMapping("/delete/{id}")
+	public ResponseEntity<?> excluirPromocao(@PathVariable("id") Long id) {
+		promocaoRepository.deleteById(id);
+		return ResponseEntity.noContent().build();
+	}
+	
+	@GetMapping("/edit/{id}")
+	public ResponseEntity<?> preEditarPromocao(@PathVariable("id") Long id) {
+		Optional<Promocao> promo = promocaoRepository.findById(id);
+		return promo.isPresent() ? ResponseEntity.ok(promo) : ResponseEntity.noContent().build();
+//		return ResponseEntity.ok(promo);
+//		return null;
 	}
 	
 	// ======================================LISTAR OFERTAS==========================================
