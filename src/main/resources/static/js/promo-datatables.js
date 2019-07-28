@@ -65,13 +65,15 @@ $(document).ready(function(){
 	
 	$("#table-server thead").on('click', 'tr', function() {
 		table.buttons().disable();
+		$("#alert").removeClass("alert alert-danger alert-success").text('');
 	});
 	
 	// Ação para marcar/desmarcar linhas clicadas. Indicamos que o click será em uma tag 'tr'
 	
 	$("#table-server tbody").on('click', 'tr', function() {
 		// Verifica se a linha já está selecionada, logo, vamos desmarcar.
-		// 'selected' é umam classe JQuery que marcará a linha como selecionada.
+		// 'selected' é uma classe JQuery que marcará a linha como selecionada.
+		$("#alert").removeClass("alert alert-danger alert-success").text('');
 		if ($(this).hasClass('selected')) {
 			$(this).removeClass('selected');
 			table.buttons().disable();
@@ -88,6 +90,8 @@ $(document).ready(function(){
 		
 //		alert("Click no botão Editar de Id: " + id);
 		
+		$("#alert").removeClass("alert alert-danger alert-success").text('');
+		
 		if (isLinhaSelecionada()) {
 			
 			let id = getIdLinha();
@@ -96,6 +100,12 @@ $(document).ready(function(){
 				method: "GET",
 				url: "/promocao/edit/" + id,
 				beforeSend: function() {
+					// removendo as mensagens
+					$("span").closest('.error-span').remove();				
+					// remover as bordas vermelhas
+					$(".is-invalid").removeClass("is-invalid");
+					// remover o alerta de sucesso
+					$("#alert").removeClass("alert alert-danger alert-success").text('');
 					// instrução 'modal' do bootstrap para abrir o mesmo
 					$('#modal-form').modal('show');
 				},
@@ -122,8 +132,61 @@ $(document).ready(function(){
 		} 
 	});
 	
+	// submit do formulario para editar
+	$("#btn-edit-modal").on("click", function() {
+		var promo = {};
+		promo.descricao = $("#edt_descricao").val();
+		promo.preco = $("#edt_preco").val();
+		promo.titulo = $("#edt_titulo").val();
+		promo.categoria = $("#edt_categoria").val();
+		promo.linkImagem = $("#edt_linkImagem").val();
+		promo.id = $("#edt_id").val();
+		
+		$.ajax({
+			method: "POST",
+			url: "/promocao/edit",
+			data: promo,
+			beforeSend: function() {
+				// removendo as mensagens
+				$("span").closest('.error-span').remove();				
+				// remover as bordas vermelhas
+				$(".is-invalid").removeClass("is-invalid");
+				// remover o alerta de sucesso
+				$("#alert").removeClass("alert alert-danger alert-success").text('');
+			},
+			success: function() {
+				$("#modal-form").modal("hide");
+				table.buttons().disable();
+				table.ajax.reload();
+				$("#alert")
+					.removeClass("alert alert-danger")
+					.addClass("alert alert-success")
+					.text("OK! Promoção atualizada com sucesso.");
+			},
+			statusCode: {
+				422: function(xhr) {
+					console.log('status error:', xhr.status);
+					var errors = $.parseJSON(xhr.responseText);
+					$.each(errors, function(key, val){
+						$("#edt_" + key).addClass("is-invalid");
+						$("#error-" + key)
+							.addClass("invalid-feedback")
+							.append("<span class='error-span'>" + val + "</span>")
+					});
+				}
+			}
+		});
+	});
+	
+	// alterar a imagem no componente <img> do modal
+	$("#edt_linkImagem").on("change", function() {
+		var link = $(this).val();
+		$("#edt_imagem").attr("src", link);
+	});
+	
 	// Ação do botão de excluir (abrir modal)
 	$("#btn-excluir").on('click', function() {
+		$("#alert").removeClass("alert alert-danger alert-success").text('');
 		if (isLinhaSelecionada()) {
 			$('#modal-delete').modal('show');
 //			alert("Click no botão Excluir.");

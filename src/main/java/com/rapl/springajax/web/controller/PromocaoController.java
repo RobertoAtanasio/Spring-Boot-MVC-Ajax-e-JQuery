@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rapl.springajax.domain.Categoria;
 import com.rapl.springajax.domain.Promocao;
+import com.rapl.springajax.dto.PromocaoDTO;
 import com.rapl.springajax.repository.CategoriaRepository;
 import com.rapl.springajax.repository.PromocaoRepository;
 import com.rapl.springajax.service.PromocaoDataTableService;
@@ -69,6 +70,29 @@ public class PromocaoController {
 		return promo.isPresent() ? ResponseEntity.ok(promo) : ResponseEntity.noContent().build();
 //		return ResponseEntity.ok(promo);
 //		return null;
+	}
+	
+	@PostMapping("/edit")
+	public ResponseEntity<?> editarPromocao(@Valid PromocaoDTO dto, BindingResult result) {
+		log.info(dto.toString());
+		if (result.hasErrors()) {			
+			Map<String, String> errors = new HashMap<>();
+			for (FieldError error : result.getFieldErrors()) {
+				errors.put(error.getField(), error.getDefaultMessage());
+			}			
+			return ResponseEntity.unprocessableEntity().body(errors);
+		}
+		
+		Promocao promo = promocaoRepository.findById(dto.getId()).get();
+		promo.setCategoria(dto.getCategoria());
+		promo.setDescricao(dto.getDescricao());
+		promo.setLinkImagem(dto.getLinkImagem());
+		promo.setPreco(dto.getPreco());
+		promo.setTitulo(dto.getTitulo());
+		
+		promocaoRepository.save(promo);
+		
+		return ResponseEntity.ok().build();
 	}
 	
 	// ======================================LISTAR OFERTAS==========================================
