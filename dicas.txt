@@ -120,3 +120,44 @@ Via https://cdnjs.com/, pesquisar por moment e acessar link moment.js: https://c
 
 Importar:	https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js
 	
+//==========================================================================================================================
+
+Configurando o DWR - Direct Web Remoting: http://www.directwebremoting.org
+
+Clicar em 'Download it now'. Ver texto d link da página abaixo:                              
+
+DWR version 3.0.2 is the latest stable release. Download it now and use DWR in your website in minutes.
+
+Maven
+Our latest release is in Maven Central:
+
+  <dependency>
+    <groupId>org.directwebremoting</groupId>
+    <artifactId>dwr</artifactId>
+    <version>3.0.2-RELEASE</version>
+  </dependency>
+
+Incluir a dependência acima em pom.xml.
+  
+criar arquivo em src/main/resource via 'Spring Bean Configuration File' com nome 'dwr-spring'
+
+Acessar o link 'Documentation', 'Server Side', 'Integration with...   Spring';
+
+The namespace
+The first task you need to accomplish is adding the following lines (in bold, below) to any of your Spring XML 
+files that includes at least one DWR specific tag. Add them inside the beans declaration (at the beginning of the file):
+
+<beans
+  xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"			<==
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    http://www.directwebremoting.org/schema/spring-dwr						<==
+    http://www.directwebremoting.org/schema/spring-dwr-3.0.xsd"> 			<==
+    
+Configurar a classe SpringAjaxApplication.java: Incluir o método:
+
+@Bean
+public ServletRegistrationBean<DwrSpringServlet> dwrSpringServlet()
+

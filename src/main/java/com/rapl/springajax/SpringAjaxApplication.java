@@ -1,12 +1,16 @@
 package com.rapl.springajax;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.directwebremoting.spring.DwrSpringServlet;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ImportResource;
 
-import com.rapl.springajax.service.SocialMetaTagService;
+// Obs.: o diretório 'resources' é o diretório 'classpath' da apliacação. Por isso o Srping sabe onde buscar o arquivo
 
+@ImportResource(locations = "classpath:dwr-spring.xml")
 @SpringBootApplication
 public class SpringAjaxApplication implements CommandLineRunner {
 
@@ -14,8 +18,8 @@ public class SpringAjaxApplication implements CommandLineRunner {
 		SpringApplication.run(SpringAjaxApplication.class, args);
 	}
 
-	@Autowired
-	SocialMetaTagService service;
+//	@Autowired
+//	SocialMetaTagService service;
 	
 	@Override
 	public void run(String... args) throws Exception {
@@ -36,6 +40,19 @@ public class SpringAjaxApplication implements CommandLineRunner {
 //		
 //		twitter = service.getTwitterCardByUrl("https://www.pichau.com.br/placa-mae-msi-meg-x570-ace-ddr4-socket-am4-chipset-amd-x570");
 //		System.out.println(twitter.toString());
+	}
+	
+	@Bean
+	public ServletRegistrationBean<DwrSpringServlet> dwrSpringServlet() {
+		DwrSpringServlet dwrServlet = new DwrSpringServlet();
+		
+		ServletRegistrationBean<DwrSpringServlet> registrationBean = 
+				new ServletRegistrationBean<>(dwrServlet, "/dwr/*");
+		
+		// inclusão de parâmetros de inicialização
+		registrationBean.addInitParameter("debug", "true");
+		registrationBean.addInitParameter("activeReverseAjaxEnabled", "true");
+		return registrationBean;
 	}
 
 }

@@ -65,12 +65,18 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.12.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.directwebremoting</groupId>
+			<artifactId>dwr</artifactId>
+			<version>3.0.2-RELEASE</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
