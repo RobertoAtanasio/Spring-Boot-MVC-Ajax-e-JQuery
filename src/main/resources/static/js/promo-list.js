@@ -66,3 +66,39 @@ function loadByScrollBar(pageNumber) {
 		}
 	})  
 }
+
+//AJAX REVERSE
+let totalOfertas = 0;
+
+$(document).ready(function() {
+	init();
+});
+
+// Função responsável por iniciar o canal de comunicação entre o cliente e oservidor
+
+function init() {
+	console.log("dwr init...");
+	
+	dwr.engine.setActiveReverseAjax(true);	// habilitando o ajax reverse no lado cliente
+	dwr.engine.setErrorHandler(error);		// para capturar mensagens de erro
+	
+	DWRAlertaPromocoes.init();				// declaração da classe do lado servidor com seu método de acesso
+											// que será responsável por criar o canal de comunuicação entre o 
+											// cliente e o servidor.
+}
+
+function error(excpetion) {
+	console.log("dwr error: ", excpetion);
+}
+
+function showButton(count) {
+	// a alteração do style faz com que o botão apareça na página.
+	totalOfertas = totalOfertas + count;
+	$("#btn-alert").show(function() {
+		$(this)
+			.attr("style", "display: block;")
+			.text("Veja " + totalOfertas + " nova(s) oferta(s)!");
+	});
+}
+
+
