@@ -23,6 +23,9 @@ public interface PromocaoRepository extends JpaRepository<Promocao, Long>{
 	
 	@Query("select p.dtCadastro from Promocao p")
 	Page<LocalDateTime> findUltimaDataDePromocao(Pageable pageable);
+
+	@Query("select max(p.dtCadastro) as dtCadastro from Promocao p")
+	Page<LocalDateTime> findUltimaDataDePromocao2(Pageable pageable);
 	
 	@Query("select p from Promocao p where p.preco = :preco")
 	Page<Promocao> findByPreco(@Param("preco") BigDecimal preco, Pageable pageable);
