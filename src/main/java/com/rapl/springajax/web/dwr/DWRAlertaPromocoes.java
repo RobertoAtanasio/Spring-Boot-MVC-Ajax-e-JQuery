@@ -1,9 +1,13 @@
 package com.rapl.springajax.web.dwr;
 
 import java.time.LocalDateTime;
+import java.util.Calendar;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.directwebremoting.Browser;
+import org.directwebremoting.ScriptSessions;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.directwebremoting.annotations.RemoteMethod;
@@ -55,6 +59,9 @@ public class DWRAlertaPromocoes {
 
 	class AlertTask extends TimerTask {
 		
+		@Autowired
+		PromocaoRepository repository;
+		
 		private LocalDateTime lastDate;
 		private WebContext context;
 		private long count;
@@ -67,8 +74,38 @@ public class DWRAlertaPromocoes {
 
 		@Override
 		public void run() {
-			// TODO Auto-generated method stub
 			
-		}
+			// Identifica a sessão que está sendo executada
+			String session = context.getScriptSession().getId();
+			
+			Browser.withSession(context, session, new Runnable() {
+				
+				@Override
+				public void run() {
+					
+					Map<String, Object> map = 
+							repository.totalAndUltimaPromocaoByDataCadastro(lastDate);
+					
+					count = (Long) map.get("count");
+					lastDate = map.get("lastDate") == null 
+							? lastDate 
+							: (LocalDateTime) map.get("lastDate");
+					
+					//--- Log para verificação apenas
+					Calendar time = Calendar.getInstance();
+					// mostrar o horário da última tentativa de acesso da DWR ao lado do cliente
+					time.setTimeInMillis(context.getScriptSession().getLastAccessedTime());	
+					System.out.println("count: " + count 
+							+ ", lastDate: " + lastDate
+							+ "<" + session + "> " + " <" + time.getTime() + ">");
+					
+					if (count > 0) {
+						// Esta string "showButton" representa o nome da função que está definido no javascript
+						// O segundo parâmetro equivale ao valor passado para a função
+						ScriptSessions.addFunctionCall("showButton", count);
+					}					
+				}
+			});			
+		}	
 	}
 }
