@@ -67,7 +67,28 @@ function loadByScrollBar(pageNumber) {
 	})  
 }
 
-//AJAX REVERSE
+//--- adicionar likes
+//    o * em id* significa que o JQuery deve tratar o click em qualquer botão que tenha o id com likes-btn
+$(document).on("click", "button[id*='likes-btn-']", function() {
+	let id = $(this).attr("id").split("-")[2];	// o split("-") gera um array com 3 ocorrências
+	
+//	console.log("id: ", id);
+	
+	$.ajax({
+		method: "POST",
+		url: "/promocao/like/" + id,
+		success: function(response) {
+			$("#likes-count-" + id).text(response);
+		},
+		error: function(xhr) {
+			alert("Ops, ocorreu um erro: " + xhr.status + ", " + xhr.statusText);
+		}
+	});
+});
+
+
+//--- AJAX REVERSE
+
 let totalOfertas = 0;
 
 $(document).ready(function() {
@@ -101,4 +122,32 @@ function showButton(count) {
 	});
 }
 
-
+$("#btn-alert").on("click", function() {
+	
+	$.ajax({
+		method: "GET",
+		url: "/promocao/list/ajax",
+		data: {
+			page : 0
+		},
+		beforeSend: function() {
+			pageNumber = 0;
+			totalOfertas = 0;
+			$("#fim-btn").hide();
+			$("#loader-img").addClass("loader");				// adicionar o loader
+			$("#btn-alert").attr("style", "display: none;");	// retirar o botão clicado
+			$(".row").fadeOut(400, function(){
+				$(this).empty();
+			});
+		},
+		success: function(response) {
+			$("#loader-img").removeClass("loader");				// remover o loader da página
+			$(".row").fadeIn(250, function(){
+				$(this).append(response);
+			});
+		},
+		error: function(xhr) {
+			alert("Ops, algo deu errado: " + xhr.status + ", " + xhr.statusText);
+		}
+	});
+});

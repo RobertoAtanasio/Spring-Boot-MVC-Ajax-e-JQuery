@@ -24,8 +24,8 @@ public interface PromocaoRepository extends JpaRepository<Promocao, Long>{
 	@Query("select p.dtCadastro from Promocao p")
 	Page<LocalDateTime> findUltimaDataDePromocao(Pageable pageable);
 
-	@Query("select max(p.dtCadastro) as dtCadastro from Promocao p")
-	Page<LocalDateTime> findUltimaDataDePromocao2(Pageable pageable);
+//	@Query("select max(p.dtCadastro) as dtCadastro from Promocao p")
+//	Page<LocalDateTime> findUltimaDataDePromocao2(Pageable pageable);
 	
 	@Query("select p from Promocao p where p.preco = :preco")
 	Page<Promocao> findByPreco(@Param("preco") BigDecimal preco, Pageable pageable);
@@ -46,6 +46,7 @@ public interface PromocaoRepository extends JpaRepository<Promocao, Long>{
 	@Query("update Promocao p set p.likes = p.likes + 1 where p.id = :id")
 	void updateSomarLikes(@Param("id") Long id);
 	
+	@Transactional(readOnly = true)
 	@Query("select p.likes from Promocao p where p.id = :id")
 	int findLikesById(@Param("id") Long id);
 }

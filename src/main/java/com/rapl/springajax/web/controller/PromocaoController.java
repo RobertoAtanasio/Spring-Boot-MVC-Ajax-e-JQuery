@@ -95,6 +95,15 @@ public class PromocaoController {
 		return ResponseEntity.ok().build();
 	}
 	
+	// ======================================ADD LIKES===============================================
+	
+	@PostMapping("/like/{id}")
+	public ResponseEntity<?> adicionarLikes(@PathVariable("id") Long id) {
+		promocaoRepository.updateSomarLikes(id);
+		int likes = promocaoRepository.findLikesById(id);
+		return ResponseEntity.ok(likes);
+	}
+	
 	// ======================================LISTAR OFERTAS==========================================
 	
 	@GetMapping("/list")

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import com.rapl.springajax.repository.PromocaoRepository;
 
 @Component
-@RemoteProxy // configuração do proxy remoto que servirá de comunicação entre o servidor e o
+@RemoteProxy 	// configuração do proxy remoto que servirá de comunicação entre o servidor e o
 				// cliente via DWR
 public class DWRAlertaPromocoes {
 
@@ -58,10 +58,7 @@ public class DWRAlertaPromocoes {
 	}
 
 	class AlertTask extends TimerTask {
-		
-		@Autowired
-		PromocaoRepository repository;
-		
+
 		private LocalDateTime lastDate;
 		private WebContext context;
 		private long count;
@@ -82,9 +79,9 @@ public class DWRAlertaPromocoes {
 				
 				@Override
 				public void run() {
-					
+
 					Map<String, Object> map = 
-							repository.totalAndUltimaPromocaoByDataCadastro(lastDate);
+							repositorio.totalAndUltimaPromocaoByDataCadastro(lastDate);
 					
 					count = (Long) map.get("count");
 					lastDate = map.get("lastDate") == null 

@@ -161,3 +161,36 @@ Configurar a classe SpringAjaxApplication.java: Incluir o método:
 @Bean
 public ServletRegistrationBean<DwrSpringServlet> dwrSpringServlet()
 
+
+Obs.: É preciso configurar os JS criados a partir das configurações geradas pela classe DWRAlertaPromocoes.java.
+Para isso, executar a chamada do bean http://localhost:8080/dwr:
+
+Será aberto uma página com as seguintes informações:
+
+Modules known to DWR:
+DWRAlertaPromocoes (BeanCreator for com.rapl.springajax.web.dwr.DWRAlertaPromocoes)		<== link criado
+
+Acessar o link e copiar os arquivos JS apresentados no seguinte trecho da página:
+
+	To use this class in your javascript you will need the following script includes:
+	
+	  <script type='text/javascript' src='/dwr/engine.js'></script>
+	  <script type='text/javascript' src='/dwr/interface/DWRAlertaPromocoes.js'></script>
+	  
+	In addition there is an optional utility script:
+
+	  <script type='text/javascript' src='/dwr/util.js'></script>
+
+e importar na página layout.html incrementando as tag do tymeleaf ( th: )
+
+//=====================================================================================================================
+
+Para o autocomplete:
+
+https://jqueryui.com/autocomplete/
+
+Acessar o link 'view source" e copiar:
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+e importar em layout.html
