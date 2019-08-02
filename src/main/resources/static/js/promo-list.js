@@ -30,11 +30,15 @@ function loadByScrollBar(pageNumber) {
 	
 	// o parâmetro pageNumber é passado via o 'data:' ou poderi ser incluído junto ao string da URL 
 	// via concatenação junto a ?
+	
+	let site = $("#autocomplete-input").val();		// obter o nome do site selecionado
+	
 	$.ajax({
 		method: "GET",
 		url: "/promocao/list/ajax",
 		data: {
-			page: pageNumber
+			page: pageNumber,
+			site: site
 		},
 		beforeSend: function() {
 			// Apresentar a imagem do Loading. Após a remoção da classe do id = loader-img, o show abaixo
@@ -66,6 +70,50 @@ function loadByScrollBar(pageNumber) {
 		}
 	})  
 }
+
+//--- autocomplete
+//    Obs.: .autocomplete ==> do JQuery. ver autocomplete do site: https://jqueryui.com/autocomplete/
+$("#autocomplete-input").autocomplete({
+	source: function(request, response) {
+		$.ajax({
+			method: "GET",
+			url: "/promocao/site",
+			data: {
+				termo: request.term			// faz o JQuery retornar o valor do campo input do id="autocomplete-input"
+											// 'termo' ==> parâmetro que o controller vai receber
+			},
+			success: function(result) {
+				response(result);			// retorna a pesquisa para a lista do autocomplete
+			}
+		});
+	}
+});
+
+$("#autocomplete-submit").on("click", function() {
+	let site = $("#autocomplete-input").val();		// obter o nome do site selecionado
+	$.ajax({
+		method: "GET",
+		url: "/promocao/site/list",
+		data: {
+			site : site						// 'site' ==> parâmetro que o controller vai receber
+		},
+		beforeSend: function() {
+			pageNumber = 0;
+			$("#fim-btn").hide();
+			$(".row").fadeOut(400, function(){
+				$(this).empty();			// limpar tudo que existe no div dos cards
+			});
+		},
+		success: function(response) {
+			$(".row").fadeIn(250, function(){
+				$(this).append(response);	// adicionar os cards pesquisados
+			});
+		},
+		error: function(xhr) {
+			alert("Ops, algo deu errado: " + xhr.status + ", " + xhr.statusText);
+		}
+	});
+});
 
 //--- adicionar likes
 //    o * em id* significa que o JQuery deve tratar o click em qualquer botão que tenha o id com likes-btn
